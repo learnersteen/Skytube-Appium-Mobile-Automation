@@ -3,6 +3,12 @@
 
 <suite name="MobileSuite">
 
+<listeners>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+
+
     <test name="SkyTubeAppTest">
         <classes>
             <class name="runners.TestRunner"/>
