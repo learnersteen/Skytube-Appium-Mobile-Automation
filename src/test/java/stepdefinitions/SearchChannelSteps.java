@@ -29,7 +29,8 @@ public class SearchChannelSteps {
 	    @Then("the search icon should be visible")
 	    public void the_search_icon_should_be_visible() {
 	    	
-	    	 Assert.assertTrue(searchChannelPage.isSearchIconDisplayed(), "Search icon is not visible"   );
+	    	// Assert.assertTrue(searchChannelPage.isSearchIconDisplayed(), "Search icon is not visible"   );
+	    	Assert.assertTrue(searchChannelPage.isSearchIconDisplayed(), "Search icon is not visible"   );
 	    }
 
 	    //TC02

@@ -58,11 +58,7 @@ public class SearchChannelPage extends BasePage  {
     public void pressEnterKey() {
         driver.pressKey(new KeyEvent(AndroidKey.ENTER));
     }
-//    
-//    public int getMatchingResultsCount(String keyword) {
-//        String xpath = "//android.widget.TextView[contains(@text,'" + keyword + "') or contains(@text,'" + keyword.toLowerCase() + "')]";
-//        return driver.findElements(AppiumBy.xpath(xpath)).size();
-//    }
+
     
     public boolean areSearchResultsDisplayed(String keyword) {
         try {
@@ -75,10 +71,6 @@ public class SearchChannelPage extends BasePage  {
         }
     }
 
-//    public boolean areSearchResultsDisplayed(String keyword) {
-//        return getMatchingResultsCount(keyword) > 0;
-//    }
-    
        
     
 }
