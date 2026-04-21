@@ -1,5 +1,6 @@
 package hooks;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
@@ -7,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openqa.selenium.OutputType;
-
+import io.qameta.allure.Allure;
 import driver.DriverManager;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
@@ -144,8 +145,8 @@ public class Hooks {
     @After
     public void tearDown(Scenario scenario) {
 
-        AndroidDriver driver = null;
-
+       AndroidDriver driver = null;
+        
         try {
             driver = DriverManager.getDriver();
 
@@ -154,7 +155,15 @@ public class Hooks {
 
             if (scenario.isFailed() && driver != null) {
                 byte[] screenshot = driver.getScreenshotAs(OutputType.BYTES);
+                
+                //attach screenshot in cucumber report 
                 scenario.attach(screenshot, "image/png", scenario.getName());
+                
+                //attach screenshot in allure 
+                Allure.addAttachment(
+                        "Failure Screenshot - " + scenario.getName(),
+                        new ByteArrayInputStream(screenshot)
+                		 );
             }
 
             if (driver != null) {
@@ -167,6 +176,8 @@ public class Hooks {
             DriverManager.unload();
         }
     }
+
+    
 
     // ================= UTIL =================
     private String getProperty(String key) {

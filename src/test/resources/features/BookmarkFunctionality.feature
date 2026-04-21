@@ -1,20 +1,47 @@
-Feature: SkyTube Bookmark Functionality 
+Feature: SkyTube Bookmark Functionality
 
   Background:
     Given The SkyTube app is launched
     When the user clicks the search icon
 
-  Scenario Outline: Verify Bookmark option is visible after clicking three dots
-    When the user enters "<keyword>" in the search field
+  Scenario Outline: Verify Bookmark option is visible in video options
+
+    And the user enters "<keyword>" in the search field
     And the user presses the Enter key
     Then the search results should be displayed for "<keyword>"
 
-    # Click 3 dots (options menu)
-    When the user clicks the options menu for the first video
+    When the user opens the options menu for the first video
+    Then the user should see "Bookmark" option
 
-    # Validate Bookmark option
-    Then the "Bookmark" option should be visible
+  Examples:
+    | keyword |
+    | appium  |
+    
+      Scenario Outline: Verify user can bookmark a video
 
-    Examples:
-      | keyword |
-      | appium  |
+    And the user enters "<keyword>" in the search field
+    And the user presses the Enter key
+    Then the search results should be displayed for "<keyword>"
+  
+    When the user bookmarks the first video
+    When the user clicks the Bookmarks tab
+    Then the video should be present in the Bookmarks tab
+
+  Examples:
+    | keyword |
+    | appium  |
+  
+  Scenario Outline: Verify user can remove a bookmarked video
+
+  And the user enters "<keyword>" in the search field
+  And the user presses the Enter key
+  Then the search results should be displayed for "<keyword>"
+
+  When the user bookmarks the first video
+  And the user clicks the Bookmarks tab
+  And the user removes the bookmarked video
+  Then the video should not be present in the Bookmarks tab
+
+Examples:
+  | keyword |
+  | appium  |

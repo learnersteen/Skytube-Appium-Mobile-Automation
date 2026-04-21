@@ -1,6 +1,7 @@
 package stepdefinitions;
 
 import org.testng.Assert;
+
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -28,7 +29,8 @@ public class SearchChannelSteps {
 	    @Then("the search icon should be visible")
 	    public void the_search_icon_should_be_visible() {
 	    	
-	    	 Assert.assertTrue(searchChannelPage.isSearchIconDisplayed(), "Search icon is not visible"   );
+	    	// Assert.assertTrue(searchChannelPage.isSearchIconDisplayed(), "Search icon is not visible"   );
+	    	Assert.assertTrue(searchChannelPage.isSearchIconDisplayed(), "Search icon is not visible"   );
 	    }
 
 	    //TC02
