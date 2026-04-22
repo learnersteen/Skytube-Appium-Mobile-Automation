@@ -23,10 +23,7 @@ public class BookmarkChannelSteps {
     
     @Then("the user should see {string} option")
     public void the_user_should_see_option(String optionName) {
-        Assert.assertTrue(
-            bookmarkPage.isBookmarkOptionVisible(),
-            optionName + " option is NOT visible"
-        );
+        Assert.assertTrue(bookmarkPage.isBookmarkOptionVisible(), optionName + " option is NOT visible");
         LogUtil.info(optionName + " option is visible");
     }
 
@@ -47,10 +44,7 @@ public class BookmarkChannelSteps {
 
     @Then("the video should be present in the Bookmarks tab")
     public void the_video_should_be_present_in_the_bookmarks_tab() {
-        Assert.assertTrue(
-            bookmarkPage.isSavedVideoPresentInBookmarks(),
-            "Bookmarked video is not present in the Bookmarks tab"
-        );
+        Assert.assertTrue(bookmarkPage.isSavedVideoPresentInBookmarks(), "Bookmarked video is not present in the Bookmarks tab");
         LogUtil.info("Bookmarked video is present in the Bookmarks tab");
     }
     

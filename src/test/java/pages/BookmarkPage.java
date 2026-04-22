@@ -40,6 +40,19 @@ public class BookmarkPage extends BasePage {
         click(firstVideoOptions);
         LogUtil.info("Clicked on first video options menu");
     }
+    
+//    public void openFirstVideoOptions() {
+//
+//        // Wait for search results to stabilize
+//        waitForVisibility(firstVideoOptions, 15);
+//
+//        try {
+//            click(firstVideoOptions);
+//            LogUtil.info("Clicked on first video options menu");
+//        } catch (Exception e) {
+//            throw new RuntimeException("First video options button not clickable", e);
+//        }
+//    }
 
     
     public boolean isBookmarkOptionVisible() {
