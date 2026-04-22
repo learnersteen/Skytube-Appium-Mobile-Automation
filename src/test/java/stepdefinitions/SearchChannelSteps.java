@@ -42,8 +42,7 @@ public class SearchChannelSteps {
 
 	    @Then("the search input field should be displayed")
 	    public void verifySearchFieldDisplayed() {
-	        Assert.assertTrue(searchChannelPage.isSearchIconDisplayed(),
-	            "Search field is not displayed after clicking search icon");
+	        Assert.assertTrue(searchChannelPage.isSearchIconDisplayed(), "Search field is not displayed after clicking search icon");
 	    }
 	    
 	    //TC03
@@ -60,10 +59,7 @@ public class SearchChannelSteps {
 
 	    @Then("the search results should be displayed for {string}")
 	    public void the_search_results_should_be_displayed_for(String keyword) {
-	        Assert.assertTrue(
-	            searchChannelPage.areSearchResultsDisplayed(keyword),
-	            "Search results were not displayed for keyword: " + keyword
-	        );
+	        Assert.assertTrue(searchChannelPage.areSearchResultsDisplayed(keyword), "Search results were not displayed for keyword: " + keyword);
 	    }
 	}
 	 
