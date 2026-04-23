@@ -5,60 +5,68 @@ import org.openqa.selenium.By;
 
 public class PreferencePage extends BasePage {
 
-	private By moreOptionsBtn = AppiumBy.accessibilityId("More options");
-	private By allowButton = AppiumBy.androidUIAutomator("new UiSelector().text(\"Allow\")");
-	private By backButton = AppiumBy.accessibilityId("Navigate up"); // Standard Android action bar ID
+    // Locators based on SkyTube UI
+    private By moreOptionsBtn = AppiumBy.accessibilityId("More options");
+    private By allowButton = AppiumBy.androidUIAutomator("new UiSelector().text(\"Allow\")");
+    private By backButton = AppiumBy.accessibilityId("Navigate up"); 
 
-	public PreferencePage() {
-		super();
-	}
+    public PreferencePage() {
+        super();
+    }
 
-	private By getByText(String text) {
-		return By.xpath("//android.widget.TextView[@text='" + text + "']");
-	}
+    /**
+     * Dynamic Locator Helper
+     * Targets TextViews by their exact display text.
+     */
+    private By getByText(String text) {
+        return By.xpath("//android.widget.TextView[@text='" + text + "']");
+    } 
 
-	// Fixes the "isMenuIconDisplayed() is undefined" error
-	public boolean isMenuIconDisplayed() {
-		return isDisplayed(moreOptionsBtn);
-	}
+    // --- Global Menu Actions ---
 
-	public void clickMenuIcon() {
-		click(moreOptionsBtn);
-	}
+    public boolean isMenuIconDisplayed() {
+        return isDisplayed(moreOptionsBtn);
+    }
 
-	// Fixes the "isMenuOptionVisible(String) is undefined" error
-	public boolean isMenuOptionVisible(String optionName) {
-		return isDisplayed(getByText(optionName));
-	}
+    public void clickMenuIcon() {
+        click(moreOptionsBtn);
+    }
 
-	public void clickMenuOption(String optionName) {
-		click(getByText(optionName));
-	}
+    public boolean isMenuOptionVisible(String optionName) {
+        return isDisplayed(getByText(optionName));
+    }
 
-	public void handlePermissionPopup() {
-		if (isDisplayed(allowButton)) {
-			click(allowButton);
-		}
-	}
+    public void clickMenuOption(String optionName) {
+        click(getByText(optionName));
+    }
 
-	public boolean isCategoryVisible(String categoryName) {
-		return isDisplayed(getByText(categoryName));
-	}
+    // --- Preference & Category Actions ---
 
-	public void clickCategory(String categoryName) {
-		click(getByText(categoryName));
-	}
+    public void handlePermissionPopup() {
+        if (isDisplayed(allowButton)) {
+            click(allowButton);
+        }
+    }
 
-	public boolean isSubPageHeaderDisplayed(String expectedTitle) {
-		return isDisplayed(getByText(expectedTitle));
-	}
+    public boolean isCategoryVisible(String categoryName) {
+        return isDisplayed(getByText(categoryName));
+    }
 
-	public void clickBackButton() {
-		if (isDisplayed(backButton)) {
-			click(backButton);
-		} else {
+    public void clickCategory(String categoryName) {
+        click(getByText(categoryName));
+    }
 
-			driver.navigate().back();
-		}
-	}
+    public boolean isSubPageHeaderDisplayed(String expectedTitle) {
+        return isDisplayed(getByText(expectedTitle));
+    }
+
+    public void clickBackButton() {
+        if (isDisplayed(backButton)) {
+            click(backButton);
+        } else {
+            // Fallback for hardware back if the UI button isn't found
+            driver.navigate().back();
+        }
+    }
+
 }
