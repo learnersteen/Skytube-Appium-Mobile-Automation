@@ -31,14 +31,6 @@ public class SubscribeAndUnsubscribePage extends BasePage {
 
 	private By unsubscribeOption = AppiumBy.androidUIAutomator("new UiSelector().text(\"Unsubscribe\")");
 
-	public void clickSubscribeButton() {
-		click(subscribeToggle);
-	}
-
-	public void clickUnsubscribeButton() {
-		click(unsubscribeOption);
-	}
-
 	public SubscribeAndUnsubscribePage() {
 		super();
 	}
