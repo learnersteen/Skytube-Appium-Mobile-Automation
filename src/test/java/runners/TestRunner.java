@@ -7,7 +7,8 @@ import io.cucumber.testng.CucumberOptions;
 		features = {
 			    "src/test/resources/features/SearchChannel.feature",
 			    "src/test/resources/features/BookmarkFunctionality.feature",
-			    "src/test/resources/features/VideoBlockerSetup.feature"
+			    "src/test/resources/features/VideoBlockerSetup.feature",
+			    "src/test/resources/features/SubscribeAndUnsubscribe.feature"
 	},
     glue = {"stepdefinitions", "hooks"},
     plugin = {
