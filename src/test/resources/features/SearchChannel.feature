@@ -1,4 +1,4 @@
-Feature: SkyTube Search Feature
+Feature: SkyTube Search 
 
   Background:
     Given The SkyTube app is launched

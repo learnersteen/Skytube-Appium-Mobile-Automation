@@ -1,10 +1,14 @@
 package hooks;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
+import java.net.URL;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.openqa.selenium.OutputType;
-
+import io.qameta.allure.Allure;
 import driver.DriverManager;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
@@ -21,69 +25,180 @@ public class Hooks {
         LogUtil.info("Starting scenario: " + scenario.getName());
 
         try {
-            UiAutomator2Options options = new UiAutomator2Options();
+            String runMode = getProperty("runMode").toLowerCase();
 
-            options.setDeviceName(getRequiredProperty("deviceName"));
-            options.setPlatformName(getRequiredProperty("platformName"));
-            options.setPlatformVersion(getRequiredProperty("platformVersion"));
-            options.setAutomationName(getRequiredProperty("automationName"));
-            options.setAppPackage(getRequiredProperty("appPackage"));
-            options.setAppActivity(getRequiredProperty("appActivity"));
+            AndroidDriver driver;
 
-            URI uri = new URI(getRequiredProperty("appiumServerUrl"));
-            AndroidDriver driver = new AndroidDriver(uri.toURL(), options);
+            if ("browserstack".equals(runMode)) {
+                driver = createBrowserStackDriver(scenario);
+            } else {
+                driver = createLocalDriver();
+            }
 
-            long implicitWait = Long.parseLong(getRequiredProperty("implicitWait"));
-            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(implicitWait));
+            driver.manage().timeouts().implicitlyWait(
+                    Duration.ofSeconds(Long.parseLong(getProperty("implicitWait")))
+            );
 
             DriverManager.setDriver(driver);
 
-            LogUtil.info("App launched successfully");
+            LogUtil.info("Driver initialized successfully");
             LogUtil.info("Session ID: " + driver.getSessionId());
 
         } catch (Exception e) {
             LogUtil.error("Driver initialization failed: " + e.getMessage());
-            throw new RuntimeException("Failed to initialize Appium driver", e);
+            throw new RuntimeException(e);
         }
     }
 
+    // ================= LOCAL =================
+    private AndroidDriver createLocalDriver() throws Exception {
+
+        LogUtil.info("Running in LOCAL mode");
+
+        UiAutomator2Options options = new UiAutomator2Options();
+
+        options.setDeviceName(getProperty("deviceName"));
+        options.setPlatformName(getProperty("platformName"));
+        options.setPlatformVersion(getProperty("platformVersion"));
+        options.setAutomationName(getProperty("automationName"));
+        options.setAppPackage(getProperty("appPackage"));
+        options.setAppActivity(getProperty("appActivity"));
+
+        URI uri = new URI(getProperty("appiumServerUrl"));
+
+        return new AndroidDriver(uri.toURL(), options);
+    }
+
+    // ================= BROWSERSTACK =================
+    
+    
+    
+    private AndroidDriver createBrowserStackDriver(Scenario scenario) throws Exception {
+
+        LogUtil.info("Running in BROWSERSTACK mode");
+
+        String username = getEnvOrProperty("BROWSERSTACK_USERNAME", "browserstackUserName");
+        String accessKey = getEnvOrProperty("BROWSERSTACK_ACCESS_KEY", "browserstackAccessKey");
+
+        UiAutomator2Options options = new UiAutomator2Options();
+
+        options.setPlatformName("Android");
+        options.setAutomationName("UiAutomator2");
+        options.setDeviceName(getProperty("browserstackDeviceName"));
+        options.setPlatformVersion(getProperty("browserstackPlatformVersion"));
+        options.setApp(getProperty("browserstackApp"));
+
+        Map<String, Object> bstackOptions = new HashMap<>();
+        bstackOptions.put("userName", username);
+        bstackOptions.put("accessKey", accessKey);
+        bstackOptions.put("projectName", "SkyTube Automation");
+        bstackOptions.put("buildName", "BrowserStack Build");
+        bstackOptions.put("sessionName", scenario.getName());
+        bstackOptions.put("debug", true);
+        bstackOptions.put("networkLogs", true);
+
+        options.setCapability("bstack:options", bstackOptions);
+
+        return new AndroidDriver(
+                new URL("https://hub-cloud.browserstack.com/wd/hub"),
+                options
+        );
+    }
+//    private AndroidDriver createBrowserStackDriver(Scenario scenario) throws Exception {
+//
+//        LogUtil.info("Running in BROWSERSTACK mode");
+//
+//        String username = getEnvOrProperty("BROWSERSTACK_USERNAME", "browserstackUserName");
+//        String accessKey = getEnvOrProperty("BROWSERSTACK_ACCESS_KEY", "browserstackAccessKey");
+//
+//        UiAutomator2Options options = new UiAutomator2Options();
+//
+//        options.setPlatformName("Android");
+//        options.setAutomationName("UiAutomator2");
+//        options.setDeviceName(getProperty("browserstackDeviceName"));
+//        options.setPlatformVersion(getProperty("browserstackPlatformVersion"));
+//
+//        // IMPORTANT
+//        options.setApp(getProperty("browserstackApp"));
+//
+//        // BrowserStack auth
+//        options.setCapability("browserstack.user", username);
+//        options.setCapability("browserstack.key", accessKey);
+//
+//        // Advanced options
+//        Map<String, Object> bstackOptions = new HashMap<>();
+//        bstackOptions.put("projectName", "SkyTube Automation");
+//        bstackOptions.put("buildName", "BrowserStack Build");
+//        bstackOptions.put("sessionName", scenario.getName());
+//        bstackOptions.put("debug", true);
+//        bstackOptions.put("networkLogs", true);
+//
+//        options.setCapability("bstack:options", bstackOptions);
+//
+//        return new AndroidDriver(
+//                new URL("https://hub-cloud.browserstack.com/wd/hub"),
+//                options
+//        );
+//    }
+
+    // ================= TEARDOWN =================
     @After
     public void tearDown(Scenario scenario) {
-        AndroidDriver driver = DriverManager.getDriver();
 
+       AndroidDriver driver = null;
+        
         try {
-            LogUtil.info("Scenario finished: " + scenario.getName());
-            LogUtil.info("Scenario status: " + scenario.getStatus());
+            driver = DriverManager.getDriver();
 
-            if (driver != null && scenario.isFailed()) {
+            LogUtil.info("Scenario finished: " + scenario.getName());
+            LogUtil.info("Status: " + scenario.getStatus());
+
+            if (scenario.isFailed() && driver != null) {
                 byte[] screenshot = driver.getScreenshotAs(OutputType.BYTES);
+                
+                //attach screenshot in cucumber report 
                 scenario.attach(screenshot, "image/png", scenario.getName());
-                LogUtil.info("Screenshot captured for failed scenario: " + scenario.getName());
+                
+                //attach screenshot in allure 
+                Allure.addAttachment(
+                        "Failure Screenshot - " + scenario.getName(),
+                        new ByteArrayInputStream(screenshot)
+                		 );
             }
 
             if (driver != null) {
-                LogUtil.info("Closing Appium session");
                 driver.quit();
-                LogUtil.info("Appium session closed successfully");
             }
 
         } catch (Exception e) {
-            LogUtil.error("Error during teardown: " + e.getMessage());
+            LogUtil.error("Teardown error: " + e.getMessage());
         } finally {
             DriverManager.unload();
         }
     }
 
-    private String getRequiredProperty(String key) {
+    
+
+    // ================= UTIL =================
+    private String getProperty(String key) {
         String value = ConfigReader.getProperty(key);
 
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("Missing required property in config file: " + key);
+        if (value == null || value.isEmpty()) {
+            throw new RuntimeException("Missing property: " + key);
         }
-
         return value.trim();
     }
+
+    private String getEnvOrProperty(String envKey, String propKey) {
+        String value = System.getenv(envKey);
+
+        if (value != null && !value.isEmpty()) {
+            return value;
+        }
+        return getProperty(propKey);
+    }
 }
+
 
 
 //package hooks;
@@ -103,11 +218,11 @@ public class Hooks {
 //import utilities.LogUtil;
 //
 //public class Hooks {
-//	
-//	@Before
-//    //public void setUp() {
+//
+//    @Before
 //    public void setUp(Scenario scenario) {
-//		 LogUtil.info("Starting scenario: " + scenario.getName());
+//        LogUtil.info("Starting scenario: " + scenario.getName());
+//
 //        try {
 //            UiAutomator2Options options = new UiAutomator2Options();
 //
@@ -117,7 +232,6 @@ public class Hooks {
 //            options.setAutomationName(getRequiredProperty("automationName"));
 //            options.setAppPackage(getRequiredProperty("appPackage"));
 //            options.setAppActivity(getRequiredProperty("appActivity"));
-//       
 //
 //            URI uri = new URI(getRequiredProperty("appiumServerUrl"));
 //            AndroidDriver driver = new AndroidDriver(uri.toURL(), options);
@@ -127,12 +241,11 @@ public class Hooks {
 //
 //            DriverManager.setDriver(driver);
 //
-//            LogUtil.info("App launched successfully.");
+//            LogUtil.info("App launched successfully");
 //            LogUtil.info("Session ID: " + driver.getSessionId());
 //
 //        } catch (Exception e) {
-//        	LogUtil.error("Driver initialization failed: " + e.getMessage());
-//           // e.printStackTrace();
+//            LogUtil.error("Driver initialization failed: " + e.getMessage());
 //            throw new RuntimeException("Failed to initialize Appium driver", e);
 //        }
 //    }
@@ -142,6 +255,9 @@ public class Hooks {
 //        AndroidDriver driver = DriverManager.getDriver();
 //
 //        try {
+//            LogUtil.info("Scenario finished: " + scenario.getName());
+//            LogUtil.info("Scenario status: " + scenario.getStatus());
+//
 //            if (driver != null && scenario.isFailed()) {
 //                byte[] screenshot = driver.getScreenshotAs(OutputType.BYTES);
 //                scenario.attach(screenshot, "image/png", scenario.getName());
@@ -149,13 +265,13 @@ public class Hooks {
 //            }
 //
 //            if (driver != null) {
-//            	LogUtil.info("Closing Appium session.");
+//                LogUtil.info("Closing Appium session");
 //                driver.quit();
-//                LogUtil.info("Appium session closed successfully.");
+//                LogUtil.info("Appium session closed successfully");
 //            }
+//
 //        } catch (Exception e) {
-//        	LogUtil.error("Error during teardown: " + e.getMessage());
-//            e.printStackTrace();
+//            LogUtil.error("Error during teardown: " + e.getMessage());
 //        } finally {
 //            DriverManager.unload();
 //        }
@@ -171,67 +287,5 @@ public class Hooks {
 //        return value.trim();
 //    }
 //}
-//	
-	
 
-	
-//	   @Before
-//	    public void setUp() throws Exception {
-//		   
-//	       UiAutomator2Options options = new UiAutomator2Options();
-//	        options.setDeviceName(ConfigReader.getProperty("deviceName"));
-//	        options.setPlatformVersion(ConfigReader.getProperty("platformVersion"));
-//	        options.setAutomationName(ConfigReader.getProperty("automationName"));
-//	        options.setAppPackage(ConfigReader.getProperty("appPackage"));
-//	        options.setAppActivity(ConfigReader.getProperty("appActivity"));
-//
-////	        AndroidDriver driver = new AndroidDriver(
-////	                new URL(ConfigReader.getProperty("appiumServerUrl")), options);
-//	        
-//	        URI uri = new URI(ConfigReader.getProperty("appiumServerUrl"));
-//	        AndroidDriver driver = new AndroidDriver(uri.toURL(), options);
-//	  
-//	        driver.manage().timeouts().implicitlyWait(
-//	                Duration.ofSeconds(Long.parseLong(ConfigReader.getProperty("implicitWait")))
-//	        );
-//
-//	        DriverManager.setDriver(driver);
-//	    }
-//
-//	    @After
-//	    public void tearDown() {
-//	        AndroidDriver driver = DriverManager.getDriver();
-//
-//	        if (driver != null) {
-//	            driver.quit();
-//	        }
-//
-//	        DriverManager.unload();
-//	    }
-//	}
-//	   
-//    @Before
-//    public void setUp() throws Exception {
-//
-//        UiAutomator2Options options = new UiAutomator2Options();
-//        options.setDeviceName("emulator-5554");
-//        options.setPlatformVersion("16");
-//        options.setAutomationName("UiAutomator2");
-//        options.setAppPackage("free.rm.skytube.oss");
-//        options.setAppActivity("free.rm.skytube.gui.activities.MainActivity");
-//
-//        AndroidDriver driver = new AndroidDriver(new URL("http://127.0.0.1:4723"), options);
-//        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-//
-//        DriverManager.setDriver(driver);
-//    }
-//
-//    @After
-//    public void tearDown() {
-//        AndroidDriver driver = DriverManager.getDriver();
-//        if (driver != null) {
-//            driver.quit();
-//        }
-//        DriverManager.unload();
-//    }
-//}
+
