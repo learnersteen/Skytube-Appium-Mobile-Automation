@@ -8,10 +8,11 @@ import io.cucumber.java.en.When;
 import org.testng.Assert;
 import pages.DownloadPage;
 import pages.SearchChannelPage;
+import utilities.LogUtil;
 
-public class DownloadsSteps {
+public class DownloadSteps {
 	 private DownloadPage dwldPage;
-	public DownloadsSteps() {
+	public DownloadSteps() {
         dwldPage = new DownloadPage(); 
     }
 
@@ -23,14 +24,14 @@ public class DownloadsSteps {
 
 	    @Then("the user should see download option and should be clickable")
 	    public void user_sees_download_option() {
-	        // Verify visible
+	       
 	        Assert.assertTrue(
 	        		dwldPage.isDownloadOptionVisible(),
 	            "Download option is NOT visible in the menu"
 	        );
-	        // Verify clickable
+	        
 	        dwldPage.clickDownloadOption();
-	        System.out.println("Download option was visible and clickable");
+	        LogUtil.info("Download option was visible and clickable");
 	    }
 	    @And("the user clicks the download option")
 	    public void user_clicks_download_option() {
@@ -39,8 +40,8 @@ public class DownloadsSteps {
 	            "Download option is not visible in the menu"
 	        );
 	        dwldPage.clickDownloadOption();
-	        dwldPage.clickDownloadVdie();
-	        System.out.println("Download option clicked successfully");
+	        dwldPage.clickDownloadVideo();
+	        LogUtil.info("Download option clicked successfully");
 	    }
 
 	    @Then("the download error message should be displayed")
@@ -48,7 +49,7 @@ public class DownloadsSteps {
 	        boolean errorShown = dwldPage.isDownloadErrorMessageDisplayed();
 	        String msg = dwldPage.getDownloadErrorMessageText();
 
-	        System.out.println("Message on screen: " + msg);
+	        LogUtil.info("Message on screen: " + msg);
 
 	        Assert.assertTrue(
 	            errorShown,
@@ -61,6 +62,6 @@ public class DownloadsSteps {
 	            "Unexpected message text: " + msg
 	        );
 
-	        System.out.println("PASS: Download triggered. Error message verified: " + msg);
+	        LogUtil.info("PASS: Download triggered. Error message verified: " + msg);
 	    }
 	}
