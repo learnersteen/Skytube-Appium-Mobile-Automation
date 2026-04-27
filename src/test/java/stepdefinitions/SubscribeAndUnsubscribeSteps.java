@@ -10,6 +10,9 @@ public class SubscribeAndUnsubscribeSteps {
 
 	private SubscribeAndUnsubscribePage subscribePage;
 
+	// Holds the channel name captured when we open the channel page for the first video
+	private String currentChannelName;
+
 	public SubscribeAndUnsubscribeSteps() {
 		this.subscribePage = new SubscribeAndUnsubscribePage();
 	}
@@ -25,6 +28,12 @@ public class SubscribeAndUnsubscribeSteps {
 
 	@When("the user taps the {string} icon for {string}")
 	public void the_user_taps_the_icon_for(String iconType, String videoTitle) {
+
+		if (videoTitle.equalsIgnoreCase("first video")) {
+			// capture the first visible video's channel/title
+			currentChannelName = subscribePage.getFirstVideoTitle();
+			videoTitle = currentChannelName;
+		}
 
 		if (iconType.equalsIgnoreCase("More Options")) {
 			subscribePage.clickMoreOptionsForVideo(videoTitle);
@@ -92,18 +101,27 @@ public class SubscribeAndUnsubscribeSteps {
 
 	@Then("the channel {string} should be present in the subscription list")
 	public void the_channel_should_be_present_in_the_subscription_list(String channelName) {
+		if (channelName.equalsIgnoreCase("previously opened channel")) {
+			channelName = currentChannelName;
+		}
 		Assert.assertTrue(subscribePage.isChannelInSubscriptionList(channelName),
 				"Channel '" + channelName + "' not found in subscription list!");
 	}
 
 	@Then("the channel {string} should be removed in the subscription list")
 	public void the_channel_should_be_removed_in_the_subscription_list(String channelName) {
+		if (channelName.equalsIgnoreCase("previously opened channel")) {
+			channelName = currentChannelName;
+		}
 		Assert.assertTrue(subscribePage.isChannelRemovedFromSubscriptionList(channelName),
 				"Channel '" + channelName + "' was still found in the subscription list after unsubscribing!");
 	}
 
 	@Then("the user should see the {string} option in the popup for {string}")
 	public void the_user_should_see_the_option_in_the_popup(String expectedOption, String videoTitle) {
+		if (videoTitle.equalsIgnoreCase("first video")) {
+			videoTitle = currentChannelName;
+		}
 		subscribePage.clickMoreOptionsForVideo(videoTitle);
 		Assert.assertTrue(subscribePage.isTextVisible(expectedOption),
 				"Popup did not show '" + expectedOption + "' — unsubscribe may not have worked!");
