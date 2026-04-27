@@ -3,8 +3,8 @@ package runners;
 import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
 
-@CucumberOptions(
-    features = "src/test/resources/features",
+@CucumberOptions(monochrome = true,
+		features = "classpath:features/DownloadFunctionality.feature",
     glue = {"stepdefinitions", "hooks"},
     plugin = {
         "pretty",
@@ -13,7 +13,7 @@ import io.cucumber.testng.CucumberOptions;
         "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:",
        // "com.aventstack.chaintest.plugins.ChainTestCucumberListener:"
     },
-    monochrome = true,
+    //monochrome = true,
     //publish = true   //Maven is trying to publish the Cucumber report online.
     publish = false 
 )
