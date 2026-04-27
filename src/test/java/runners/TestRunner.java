@@ -8,8 +8,11 @@ import io.cucumber.testng.CucumberOptions;
 			    "src/test/resources/features/SearchChannel.feature",
 			    "src/test/resources/features/BookmarkFunctionality.feature",
 			    "src/test/resources/features/VideoBlockerSetup.feature",
-			    "src/test/resources/features/SubscribeAndUnsubscribe.feature"
-			    "src/test/resources/features/DownloadFunctionality.feature"
+			    "src/test/resources/features/SubscribeAndUnsubscribe.feature",
+			    "src/test/resources/features/DownloadFunctionality.feature",
+			    "src/test/resources/features/PreferencesOnlyUIValidation.feature",
+			    "src/test/resources/features/WatchedVideoCleaner.feature",
+			    "src/test/resources/features"
 	},
 
     glue = {"stepdefinitions", "hooks"},
