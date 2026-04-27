@@ -9,7 +9,9 @@ import io.cucumber.testng.CucumberOptions;
 			    "src/test/resources/features/BookmarkFunctionality.feature",
 			    "src/test/resources/features/VideoBlockerSetup.feature",
 			    "src/test/resources/features/SubscribeAndUnsubscribe.feature"
+			    "src/test/resources/features/DownloadFunctionality.feature"
 	},
+
     glue = {"stepdefinitions", "hooks"},
     plugin = {
         "pretty",
@@ -17,7 +19,7 @@ import io.cucumber.testng.CucumberOptions;
         "json:target/cucumber.json",
         "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:",
         "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
-       // "com.aventstack.chaintest.plugins.ChainTestCucumberListener:"
+       
     },
     monochrome = true,
     //publish = true   //Maven is trying to publish the Cucumber report online.
