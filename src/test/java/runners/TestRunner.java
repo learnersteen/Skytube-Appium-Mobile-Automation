@@ -5,10 +5,8 @@ import io.cucumber.testng.CucumberOptions;
 
 @CucumberOptions(
 		features = {
-
 			    "src/test/resources/features/SearchChannel.feature",
 			    "src/test/resources/features/BookmarkFunctionality.feature",
-
 			    "src/test/resources/features/DownloadFunctionality.feature",
 			    "src/test/resources/features/SubscribeAndUnsubscribe.feature",
 			    "src/test/resources/features/PreferencesOnlyUIValidation.feature",
