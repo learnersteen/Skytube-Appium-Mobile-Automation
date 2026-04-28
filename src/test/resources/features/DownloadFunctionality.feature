@@ -1,4 +1,4 @@
-Feature: SkyTube Search Feature
+Feature: SkyTube Download Feature
 
   Background:
     Given The SkyTube app is launched
