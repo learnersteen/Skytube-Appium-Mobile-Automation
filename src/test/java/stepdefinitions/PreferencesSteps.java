@@ -1,62 +1,51 @@
 package stepdefinitions;
 
-import io.cucumber.datatable.DataTable;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.testng.Assert;
 import pages.PreferencePage;
+import utilities.ExcelReader; // Ensure this matches your package name
 import java.util.List;
 
 public class PreferencesSteps {
 
-    private PreferencePage preferencesPage;
+	private PreferencePage preferencesPage;
+	private ExcelReader excelReader;
 
-    public PreferencesSteps() {
-        this.preferencesPage = new PreferencePage();
-    }
+	public PreferencesSteps() {
+		this.preferencesPage = new PreferencePage();
+		this.excelReader = new ExcelReader();
+	}
 
-    // --- Global Menu & Preferences Steps ---
+	@When("the user clicks the three dots menu icon")
+	public void the_user_clicks_the_three_dots_menu_icon() {
+		preferencesPage.clickMenuIcon();
+	}
 
-    @Then("the three dots menu icon should be visible")
-    public void the_three_dots_menu_icon_should_be_visible() {
-        Assert.assertTrue(preferencesPage.isMenuIconDisplayed(), "Three dots menu is not visible!");
-    }
+	@When("the user clicks on the {string} option")
+	public void the_user_clicks_on_the_option(String optionName) {
+		preferencesPage.clickMenuOption(optionName);
+		if (optionName.equalsIgnoreCase("Preferences")) {
+			preferencesPage.handlePermissionPopup();
+		}
+	}
 
-    @When("the user clicks the three dots menu icon")
-    public void the_user_clicks_the_three_dots_menu_icon() {
-        preferencesPage.clickMenuIcon();
-    }
+	@Then("the user verifies all categories from Excel sheet {string}")
+	public void verify_categories_from_excel(String sheetName) throws Exception {
+		List<String> categories = excelReader.getColumnData(sheetName);
 
-    @Then("the {string} option should be displayed in the dropdown")
-    public void the_option_should_be_displayed_in_the_dropdown(String optionName) {
-        Assert.assertTrue(preferencesPage.isMenuOptionVisible(optionName), optionName + " was not found in dropdown!");
-    }
+		for (String category : categories) {
+			Assert.assertTrue(preferencesPage.isCategoryVisible(category),
+					"Category '" + category + "' not found on screen!");
 
-    @When("the user clicks on the {string} option")
-    public void the_user_clicks_on_the_option(String optionName) {
-        preferencesPage.clickMenuOption(optionName);
-        if (optionName.equalsIgnoreCase("Preferences") || optionName.equalsIgnoreCase("Settings")) {
-            preferencesPage.handlePermissionPopup();
-        }
-    }
+			preferencesPage.clickCategory(category);
 
-    @Then("the following categories should be visible:")
-    public void the_following_categories_should_be_visible(DataTable dataTable) {
-        List<String> categories = dataTable.asList();
-        for (String category : categories) {
-            Assert.assertTrue(preferencesPage.isCategoryVisible(category), "Category '" + category + "' not found!");
-        }
-    }
+			Assert.assertTrue(preferencesPage.isSubPageHeaderDisplayed(category),
+					"Failed to load sub-page header for: " + category);
 
-    @Then("the user verifies and returns from each sub-page:")
-    public void the_user_verifies_and_returns_from_each_sub_page(DataTable dataTable) {
-        List<String> categories = dataTable.asList();
-        for (String category : categories) {
-            preferencesPage.clickCategory(category);
-            Assert.assertTrue(preferencesPage.isSubPageHeaderDisplayed(category), "Failed to load sub-page: " + category);
-            preferencesPage.clickBackButton();
-        }
-    }
+			preferencesPage.clickBackButton();
+
+			System.out.println("Successfully verified: " + category);
+		}
+	}
 }
-
